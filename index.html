@@ -414,27 +414,33 @@
         /* --- LAYAR 3: WINNER SCREEN --- */
         #winner-screen {
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         #winner-announcement {
             font-size: 2.5rem;
             color: var(--accent-color);
             font-weight: 700;
-            margin: 1rem 0;
+            flex-shrink: 0;
         }
 
         #final-scores-list {
             list-style: none;
-            padding: 0;
+            padding: 0 1rem;
             font-size: 1.2rem;
             max-width: 500px;
             width: 100%;
+            overflow-y: auto;
+            /* <<< FIX */
+            max-height: 60vh;
+            /* <<< FIX */
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
         #final-scores-list li {
             background: rgba(0, 0, 0, 0.2);
-            margin-bottom: 0.5rem;
+            margin: 0.5rem 0;
             padding: 0.8rem;
             border-radius: 8px;
             display: flex;
@@ -619,7 +625,7 @@
             const editScoreInput = document.getElementById('edit-score-input');
             const confirmEditBtn = document.getElementById('confirm-edit-btn');
             const cancelEditBtn = document.getElementById('cancel-edit-btn');
-            const sfx = { correct: document.getElementById('sfx-correct'), reveal: document.getElementById('sfx-reveal'), undo: document.getElementById('sfx-undo') };
+            const sfx = { correct: document.getElementById('sfx-correct'), reveal: document.getElementById('sfx-reveal'), undo: document.getElementById('sfx-undo'), gameover: document.getElementById('sfx-gameover') };
 
             // --- TEMPLATE DATA ---
             const templateRounds = [
@@ -833,28 +839,25 @@
             }
 
             function endGame() {
-            const sortedPlayers = [...gameData.players].sort((a, b) => b.score - a.score);
-            
-            if (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) {
-                 winnerAnnouncement.textContent = `Pemenangnya adalah ${sortedPlayers[0].name}!`;
-            } else {
-                 winnerAnnouncement.textContent = `Tidak ada pemenang kali ini!`;
+                playSound(sfx.gameover);
+                const sortedPlayers = [...gameData.players].sort((a, b) => b.score - a.score);
+
+                if (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) {
+                    winnerAnnouncement.textContent = `Pemenangnya adalah ${sortedPlayers[0].name}!`;
+                } else {
+                    winnerAnnouncement.textContent = `Tidak ada pemenang kali ini!`;
+                }
+
+                finalScoresList.innerHTML = '';
+                sortedPlayers.forEach((player, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${index + 1}. ${player.name}</span> <strong>${player.score}</strong>`;
+                    finalScoresList.appendChild(li);
+                });
+
+                switchScreen('winner');
             }
-
-            finalScoresList.innerHTML = '';
-            sortedPlayers.forEach((player, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${index + 1}. ${player.name}</span> <strong>${player.score}</strong>`;
-                finalScoresList.appendChild(li);
-            });
-
-            switchScreen('winner');
-        }
-// Pastikan event listener terpasang dengan benar
-endGameBtn.addEventListener('click', () => {
-    console.log('End game button clicked'); // Untuk debugging
-    endGame();
-});
+            
             function resetGame() {
                 playerNamesInput.value = '';
                 populateDefaultRounds();
@@ -955,6 +958,4 @@ endGameBtn.addEventListener('click', () => {
     </script>
 </body>
 
-</html>
-
-
+</ht
