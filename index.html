@@ -18,10 +18,13 @@
             /* Orange Accent */
             --text-light: #ffffff;
             --text-dark: #333;
-            --strike-color: #d32f2f;
-            /* Red for strikes */
+            --warning-color: #fbc02d;
+            /* Yellow for Undo */
             --success-color: #4caf50;
             /* Green for success */
+            --gold-color: #ffd700;
+            --silver-color: #c0c0c0;
+            --bronze-color: #cd7f32;
         }
 
         * {
@@ -46,16 +49,15 @@
         .screen {
             width: 100%;
             height: 100%;
-            padding: 2rem;
+            padding: 1rem;
             position: absolute;
             top: 0;
             left: 0;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             display: none;
-            /* Hide all screens by default */
+            /* Sembunyikan semua layar secara default */
         }
 
-        /* --- FIX: Display logic is now more specific --- */
         #setup-screen.active,
         #winner-screen.active {
             display: flex;
@@ -63,8 +65,10 @@
             align-items: center;
         }
 
+        /* --- LAYOUT FIX: Menggunakan Flexbox untuk Stabilitas --- */
         #game-screen.active {
-            display: grid;
+            display: flex;
+            flex-direction: column;
         }
 
         h1,
@@ -160,40 +164,74 @@
         }
 
         .delete-round-btn {
-            background-color: var(--strike-color);
+            background-color: #d32f2f;
             color: var(--text-light);
             align-self: flex-end;
         }
 
-        /* --- LAYAR 2: GAME SCREEN --- */
+        /* --- LAYAR 2: GAME SCREEN (LAYOUT BARU) --- */
         #game-screen {
-            grid-template-rows: auto 1fr auto;
-            grid-template-columns: 300px 1fr;
             gap: 1rem;
-            padding: 1rem;
             height: 100%;
         }
 
+        #leaderboard-container {
+            flex-shrink: 0;
+            /* Jangan sampai tertekan */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            min-height: 80px;
+        }
+
+        .scroll-btn {
+            background-color: var(--secondary-bg);
+            color: var(--text-light);
+            border: 1px solid var(--primary-bg);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            flex-shrink: 0;
+            display: none;
+            /* Sembunyikan by default */
+        }
+
         #player-leaderboard {
-            grid-row: 1 / span 3;
-            grid-column: 1 / 2;
-            background-color: rgba(40, 53, 147, 0.8);
-            padding: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 1rem;
             border-radius: 12px;
             display: flex;
-            flex-direction: column;
             gap: 1rem;
-            overflow-y: auto;
+            align-items: center;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+        }
+
+        #player-leaderboard::-webkit-scrollbar {
+            display: none;
         }
 
         .player-card {
-            background-color: var(--primary-bg);
-            padding: 1rem;
+            background-color: var(--secondary-bg);
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             display: flex;
-            justify-content: space-between;
+            gap: 0.5rem;
             align-items: center;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            transition: all 0.3s ease;
+            min-width: 180px;
+            flex-shrink: 0;
+            border: 2px solid transparent;
         }
 
         .player-card.highlight {
@@ -204,18 +242,50 @@
 
         .player-name {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .player-score {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--accent-color);
+            cursor: pointer;
+            transition: color 0.2s;
+            margin-left: auto;
+        }
+
+        .player-score:hover {
+            color: #fff;
+        }
+
+        /* --- PODIUM STYLES --- */
+        .player-card.rank-1 {
+            border-color: var(--gold-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--gold-color);
+        }
+
+        .player-card.rank-2 {
+            border-color: var(--silver-color);
+            transform: scale(1.05);
+        }
+
+        .player-card.rank-3 {
+            border-color: var(--bronze-color);
+        }
+
+        .player-card.rank-other {
+            opacity: 0.7;
+            transform: scale(0.9);
+        }
+
+        .player-rank {
+            font-size: 1.2rem;
         }
 
         .game-main-area {
-            grid-row: 1 / span 2;
-            grid-column: 2 / 3;
+            flex-grow: 1;
+            /* Ambil sisa ruang */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -247,7 +317,7 @@
             width: 100%;
             flex-grow: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             perspective: 1000px;
             overflow-y: auto;
@@ -321,8 +391,7 @@
         }
 
         .host-controls {
-            grid-row: 3 / 4;
-            grid-column: 2 / 3;
+            flex-shrink: 0;
             display: flex;
             gap: 1rem;
             align-items: center;
@@ -334,6 +403,13 @@
             background-color: var(--success-color);
             color: white;
         }
+
+        #undo-btn {
+            background-color: var(--warning-color);
+            display: none;
+        }
+
+        /* Sembunyikan secara default */
 
         /* --- LAYAR 3: WINNER SCREEN --- */
         #winner-screen {
@@ -400,7 +476,8 @@
             color: var(--accent-color);
         }
 
-        #award-player-select {
+        #award-player-select,
+        #edit-score-input {
             width: 100%;
             padding: 0.5rem;
             font-size: 1.1rem;
@@ -432,18 +509,22 @@
         </form>
     </div>
 
-    <!-- LAYAR 2: PAPAN PERMAINAN UTAMA -->
+    <!-- LAYAR 2: PAPAN PERMAINAN UTAMA (STRUKTUR HTML BARU) -->
     <div id="game-screen" class="screen">
-        <aside id="player-leaderboard">
-            <h2>Papan Skor</h2>
-            <!-- Kartu pemain akan diisi oleh JS -->
-        </aside>
+        <div id="leaderboard-container">
+            <button id="scroll-left-btn" class="scroll-btn">&lt;</button>
+            <header id="player-leaderboard">
+                <!-- Kartu pemain akan diisi oleh JS -->
+            </header>
+            <button id="scroll-right-btn" class="scroll-btn">&gt;</button>
+        </div>
         <div class="game-main-area">
             <h3 id="round-display"></h3>
             <p id="topic-display"></p>
             <main id="main-board"></main>
         </div>
         <footer class="host-controls">
+            <button id="undo-btn">Batalkan Aksi</button>
             <button id="reveal-all-btn">Tampilkan Semua Jawaban</button>
             <button id="next-round-btn">Ronde Selanjutnya</button>
             <button id="end-game-btn">Akhiri Permainan</button>
@@ -452,7 +533,7 @@
 
     <!-- LAYAR 3: TAMPILAN PEMENANG -->
     <div id="winner-screen" class="screen">
-        <h1>Permainan Selesai!</h1>
+        <h1>GAME CLEAR!</h1>
         <p id="winner-announcement"></p>
         <ul id="final-scores-list"></ul>
         <button id="play-again-btn">Main Lagi?</button>
@@ -470,6 +551,19 @@
         </div>
     </div>
 
+    <!-- MODAL UNTUK EDIT SKOR MANUAL -->
+    <div id="edit-score-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="edit-score-title">Edit Skor</h2>
+            <input type="number" id="edit-score-input">
+            <div class="modal-buttons">
+                <button id="confirm-edit-btn">Simpan</button>
+                <button id="cancel-edit-btn">Batal</button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- TEMPLATE UNTUK BLOK RONDE -->
     <template id="round-template">
         <div class="round-editor">
@@ -483,31 +577,35 @@
     </template>
 
     <!-- SFX -->
-    <audio id="sfx-correct" src="https://actions.google.com/sounds/v1/positive/burst_positive_02.ogg"></audio>
-    <audio id="sfx-reveal" src="https://actions.google.com/sounds/v1/ui/boop.ogg"></audio>
+    <audio id="sfx-correct" src="https://www.myinstants.com/media/sounds/correct-answer-new.mp3"></audio>
+    <audio id="sfx-reveal" src="https://www.myinstants.com/media/sounds/spiderman-meme-song.mp3"></audio>
+    <audio id="sfx-undo" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+    <audio id="sfx-gameover" src="https://www.myinstants.com/media/sounds/gigachad-phonk-house.mp3"></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- STATE MANAGEMENT ---
             let gameData = {};
-            let activeAward = {
-                answerSlot: null,
-                answerIndex: null,
-                points: 0
-            };
+            let activeAward = { answerSlot: null, answerIndex: null, points: 0 };
+            let lastAction = null; // Untuk menyimpan aksi terakhir (Undo)
+            let playerToEdit = null; // Untuk menyimpan index player yg skornya akan diedit
 
             // --- DOM ELEMENTS ---
             const screens = { setup: document.getElementById('setup-screen'), game: document.getElementById('game-screen'), winner: document.getElementById('winner-screen') };
             const awardModal = document.getElementById('award-points-modal');
+            const editScoreModal = document.getElementById('edit-score-modal');
             const setupForm = document.getElementById('setup-form');
             const playerNamesInput = document.getElementById('player-names');
             const roundsContainer = document.getElementById('rounds-container');
             const addRoundBtn = document.getElementById('add-round-btn');
             const roundTemplate = document.getElementById('round-template');
             const playerLeaderboard = document.getElementById('player-leaderboard');
+            const scrollLeftBtn = document.getElementById('scroll-left-btn');
+            const scrollRightBtn = document.getElementById('scroll-right-btn');
             const roundDisplay = document.getElementById('round-display');
             const topicDisplay = document.getElementById('topic-display');
             const mainBoard = document.getElementById('main-board');
+            const undoBtn = document.getElementById('undo-btn');
             const revealAllBtn = document.getElementById('reveal-all-btn');
             const nextRoundBtn = document.getElementById('next-round-btn');
             const endGameBtn = document.getElementById('end-game-btn');
@@ -517,13 +615,19 @@
             const awardPlayerSelect = document.getElementById('award-player-select');
             const confirmAwardBtn = document.getElementById('confirm-award-btn');
             const cancelAwardBtn = document.getElementById('cancel-award-btn');
-            const sfx = { correct: document.getElementById('sfx-correct'), reveal: document.getElementById('sfx-reveal') };
+            const editScoreTitle = document.getElementById('edit-score-title');
+            const editScoreInput = document.getElementById('edit-score-input');
+            const confirmEditBtn = document.getElementById('confirm-edit-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const sfx = { correct: document.getElementById('sfx-correct'), reveal: document.getElementById('sfx-reveal'), undo: document.getElementById('sfx-undo') };
 
             // --- TEMPLATE DATA ---
             const templateRounds = [
-                { topic: "Alasan paling umum telat masuk kantor?", answers: [{ text: "Macet di Jalan", points: 45 }, { text: "Kesiangan / Begadang", points: 28 }, { text: "Antar Anak Sekolah", points: 15 }, { text: "Hujan Badai", points: 7 }, { text: "Ada Urusan Pagi", points: 5 }, { text: "Ban Bocor", points: 2 }] },
-                { topic: "Benda yang sering hilang di meja kerja?", answers: [{ text: "Pulpen / Alat Tulis", points: 52 }, { text: "Stapler", points: 21 }, { text: "Gunting / Cutter", points: 13 }, { text: "Flashdisk", points: 9 }, { text: "Mug / Gelas", points: 5 }, { text: "Kabel Charger", points: 3 }] },
-                { topic: "Apa yang dilakukan saat bos tidak ada di kantor?", answers: [{ text: "Nonton YouTube / Film", points: 38 }, { text: "Ngobrol / Gosip", points: 30 }, { text: "Pulang Lebih Cepat", points: 16 }, { text: "Main Game", points: 9 }, { text: "Tidur Siang", points: 7 }, { text: "Buka Toko Online", points: 4 }] }
+                { topic: "Apa aktivitas pertama yang biasa dilakukan oleh karyawan saat tiba di kantor?", answers: [{ text: "Menyalakan Laptop", points: 50 }, { text: "Menyapa Teman Kantor", points: 40 }, { text: "Cek HP", points: 30 }, { text: "Ngobrol", points: 20 }, { text: "Minum", points: 10 }, { text: "Rapikan Meja", points: 5 }] },
+                { topic: "Hal apa saja yang biasanya membuat karyawan senang", answers: [{ text: "Gajian", points: 50 }, { text: "Cuti", points: 40 }, { text: "Pulang On Time", points: 30 }, { text: "Punya Team yang Menyenangkan", points: 20 }, { text: "Makanan Gratis", points: 10 }, { text: "Dapat Pujian", points: 5 }] },
+                { topic: "Alasan paling umum telat masuk kantor?", answers: [{ text: "Macet", points: 50 }, { text: "Bangun Kesiangan", points: 40 }, { text: "Hujan Deras/Banjir", points: 30 }, { text: "Antar Anak Sekolah", points: 20 }, { text: "Sakit", points: 10 }, { text: "Ban Bocor", points: 5 }] },
+                { topic: "Benda yang sering hilang di meja kerja?", answers: [{ text: "Alat Tulis", points: 50 }, { text: "Gunting/Cutter", points: 40 }, { text: "Stapler", points: 30 }, { text: "Kabel Charger", points: 20 }, { text: "Sticky Notes/Post It", points: 10 }, { text: "Botol Minum/Tumblr", points: 5 }] },
+                { topic: "Saat apa biasanya orang menutup mulutnya dengan tangan?", answers: [{ text: "Menguap", points: 50 }, { text: "Berbisik", points: 40 }, { text: "Batuk/Bersin", points: 30 }, { text: "Kaget", points: 20 }, { text: "Tertawa", points: 10 }, { text: "Menangis/Terharu", points: 5 }] }
             ];
 
             // --- CORE FUNCTIONS ---
@@ -576,7 +680,7 @@
             function handleFormSubmit(e) {
                 e.preventDefault();
                 const players = playerNamesInput.value.split('\n').map(name => name.trim()).filter(name => name !== '');
-                if (players.length < 1) { // Allow single player
+                if (players.length < 1) {
                     alert('Masukkan minimal 1 nama pemain yang valid.');
                     return;
                 }
@@ -626,12 +730,15 @@
                 }
                 gameData.currentRoundIndex = roundIndex;
                 const roundData = gameData.rounds[roundIndex];
-                roundData.answers.forEach(a => a.revealed = false); // Reset revealed status
+                roundData.answers.forEach(a => a.revealed = false);
 
                 mainBoard.innerHTML = '';
                 roundDisplay.textContent = `RONDE ${roundIndex + 1}`;
                 topicDisplay.textContent = roundData.topic;
                 updateLeaderboard();
+
+                lastAction = null; // Reset undo state
+                undoBtn.style.display = 'none';
 
                 roundData.answers.forEach((answer, index) => {
                     const slot = document.createElement('div');
@@ -674,6 +781,13 @@
                 const playerIndex = parseInt(awardPlayerSelect.value, 10);
                 if (isNaN(playerIndex)) return;
 
+                lastAction = {
+                    playerIndex: playerIndex,
+                    points: activeAward.points,
+                    answerIndex: activeAward.answerIndex,
+                    answerSlot: activeAward.answerSlot
+                };
+
                 playSound(sfx.correct);
 
                 gameData.players[playerIndex].score += activeAward.points;
@@ -682,7 +796,23 @@
                 activeAward.answerSlot.classList.add('revealed');
                 updateLeaderboard(playerIndex);
 
+                undoBtn.style.display = 'inline-block';
                 toggleModal(awardModal, false);
+            }
+
+            function handleUndo() {
+                if (!lastAction) return;
+
+                playSound(sfx.undo);
+
+                gameData.players[lastAction.playerIndex].score -= lastAction.points;
+                gameData.rounds[gameData.currentRoundIndex].answers[lastAction.answerIndex].revealed = false;
+
+                lastAction.answerSlot.classList.remove('revealed');
+                updateLeaderboard();
+
+                lastAction = null;
+                undoBtn.style.display = 'none';
             }
 
             function handleRevealAll() {
@@ -694,6 +824,8 @@
                         roundData.answers[index].revealed = true;
                     }
                 });
+                lastAction = null;
+                undoBtn.style.display = 'none';
             }
 
             function handleNextRound() {
@@ -701,51 +833,104 @@
             }
 
             function endGame() {
-                const sortedPlayers = [...gameData.players].sort((a, b) => b.score - a.score);
-
-                if (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) {
-                    winnerAnnouncement.textContent = `Pemenangnya adalah ${sortedPlayers[0].name}!`;
-                } else {
-                    winnerAnnouncement.textContent = `Tidak ada pemenang kali ini!`;
-                }
-
-                finalScoresList.innerHTML = '';
-                sortedPlayers.forEach((player, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span>${index + 1}. ${player.name}</span> <strong>${player.score}</strong>`;
-                    finalScoresList.appendChild(li);
-                });
-
-                switchScreen('winner');
+            const sortedPlayers = [...gameData.players].sort((a, b) => b.score - a.score);
+            
+            if (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) {
+                 winnerAnnouncement.textContent = `Pemenangnya adalah ${sortedPlayers[0].name}!`;
+            } else {
+                 winnerAnnouncement.textContent = `Tidak ada pemenang kali ini!`;
             }
 
+            finalScoresList.innerHTML = '';
+            sortedPlayers.forEach((player, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${player.name}</span> <strong>${player.score}</strong>`;
+                finalScoresList.appendChild(li);
+            });
+
+            switchScreen('winner');
+        }
+// Pastikan event listener terpasang dengan benar
+endGameBtn.addEventListener('click', () => {
+    console.log('End game button clicked'); // Untuk debugging
+    endGame();
+});
             function resetGame() {
                 playerNamesInput.value = '';
                 populateDefaultRounds();
                 switchScreen('setup');
             }
 
-            // --- UI UPDATE FUNCTIONS ---
+            // --- UI UPDATE & MANUAL EDIT FUNCTIONS ---
+            function openEditScoreModal(playerIndex) {
+                playerToEdit = playerIndex;
+                const player = gameData.players[playerIndex];
+                editScoreTitle.textContent = `Edit Skor ${player.name}`;
+                editScoreInput.value = player.score;
+                toggleModal(editScoreModal, true);
+            }
+
+            function confirmScoreEdit() {
+                const newScore = parseInt(editScoreInput.value, 10);
+                if (playerToEdit !== null && !isNaN(newScore)) {
+                    gameData.players[playerToEdit].score = newScore;
+                    updateLeaderboard();
+                }
+                toggleModal(editScoreModal, false);
+                playerToEdit = null;
+            }
+
+            function updateScrollButtons() {
+                setTimeout(() => {
+                    const isScrollable = playerLeaderboard.scrollWidth > playerLeaderboard.clientWidth;
+                    scrollLeftBtn.style.display = isScrollable && playerLeaderboard.scrollLeft > 5 ? 'block' : 'none';
+                    const maxScrollLeft = playerLeaderboard.scrollWidth - playerLeaderboard.clientWidth;
+                    scrollRightBtn.style.display = isScrollable && playerLeaderboard.scrollLeft < maxScrollLeft - 5 ? 'block' : 'none';
+                }, 100);
+            }
+
             function updateLeaderboard(highlightedPlayerIndex = -1) {
-                playerLeaderboard.innerHTML = '<h2>Papan Skor</h2>';
+                playerLeaderboard.innerHTML = '';
                 const sortedPlayers = [...gameData.players].sort((a, b) => b.score - a.score);
 
-                sortedPlayers.forEach(player => {
+                sortedPlayers.forEach((player, rankIndex) => {
                     const originalIndex = gameData.players.findIndex(p => p.name === player.name);
                     const card = document.createElement('div');
                     card.className = 'player-card';
+
+                    if (rankIndex === 0 && player.score > 0) card.classList.add('rank-1');
+                    else if (rankIndex === 1 && player.score > 0) card.classList.add('rank-2');
+                    else if (rankIndex === 2 && player.score > 0) card.classList.add('rank-3');
+                    else if (gameData.players.length > 3) card.classList.add('rank-other');
+
                     if (originalIndex === highlightedPlayerIndex) {
                         card.classList.add('highlight');
                         setTimeout(() => card.classList.remove('highlight'), 1500);
                     }
-                    card.innerHTML = `<span class="player-name">${player.name}</span> <span class="player-score">${player.score}</span>`;
+
+                    let rankHTML = '';
+                    if (rankIndex === 0 && player.score > 0) rankHTML = '<span class="player-rank">🥇</span>';
+                    else if (rankIndex === 1 && player.score > 0) rankHTML = '<span class="player-rank">🥈</span>';
+                    else if (rankIndex === 2 && player.score > 0) rankHTML = '<span class="player-rank">🥉</span>';
+
+                    card.innerHTML = `${rankHTML}<span class="player-name">${player.name}</span> <span class="player-score" data-player-index="${originalIndex}">${player.score}</span>`;
                     playerLeaderboard.appendChild(card);
                 });
+
+                playerLeaderboard.querySelectorAll('.player-score').forEach(scoreEl => {
+                    scoreEl.addEventListener('click', (e) => {
+                        const playerIndex = parseInt(e.currentTarget.dataset.playerIndex, 10);
+                        openEditScoreModal(playerIndex);
+                    });
+                });
+
+                updateScrollButtons();
             }
 
             // --- EVENT LISTENERS ---
             addRoundBtn.addEventListener('click', () => addRound());
             setupForm.addEventListener('submit', handleFormSubmit);
+            undoBtn.addEventListener('click', handleUndo);
             revealAllBtn.addEventListener('click', handleRevealAll);
             nextRoundBtn.addEventListener('click', handleNextRound);
             endGameBtn.addEventListener('click', endGame);
@@ -754,9 +939,18 @@
             confirmAwardBtn.addEventListener('click', awardPointsToPlayer);
             cancelAwardBtn.addEventListener('click', () => toggleModal(awardModal, false));
 
+            confirmEditBtn.addEventListener('click', confirmScoreEdit);
+            cancelEditBtn.addEventListener('click', () => toggleModal(editScoreModal, false));
+
+            scrollLeftBtn.addEventListener('click', () => { playerLeaderboard.scrollBy({ left: -300, behavior: 'smooth' }); });
+            scrollRightBtn.addEventListener('click', () => { playerLeaderboard.scrollBy({ left: 300, behavior: 'smooth' }); });
+            playerLeaderboard.addEventListener('scroll', updateScrollButtons);
+            window.addEventListener('resize', updateScrollButtons);
+
+
             // --- INITIALIZATION ---
             populateDefaultRounds();
-            playerNamesInput.value = "Player 1\nPlayer 2\nPlayer 3"; // Example players
+            playerNamesInput.value = "Player 1\nPlayer 2\nPlayer 3\nPlayer 4\nPlayer 5\nPlayer 6";
         });
     </script>
 </body>
